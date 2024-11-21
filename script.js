@@ -24,14 +24,38 @@ let filename;
 
 let editIndex = null;
 
+document.getElementById('importExcelButton').addEventListener('click', function() {
+    document.getElementById('importExcel').click();
+      });
+
+// Size & Koordinat
+const bg_w = 108.3, bg_h = 105;
+const name_x = 69,name_y=38; 
+const submerk_x = 69,submerk_y=44.6;
+const volume_x = 69,volume_y=49.1;
+const jual_x=101.2,jual_y=68.9;
+const coret_x1=62.8,coret_y1=64.8,coret_x2=99.4,coret_y2=59.8;
+const periode_x=101.2,periode_y=100;
+const price_x=101.2,price_y=86.9;
+
+const merkSize = 28;
+const submerkSize = 11.5;
+const volSize = 11.5;
+const jualSize = 37.9;
+const promoSize = 49;
+const periodeSize = 10;
+
+const mmToPx = 3.7795275591; // 1mm = 3.7795px
+const ptToPx = 1.3333; 
+
 
 const renderCanvas = (item) => {
     const ctx = itemPreviewCanvas.getContext("2d");
     ctx.clearRect(0, 0, itemPreviewCanvas.width, itemPreviewCanvas.height); // Clear canvas
 
     // Ukuran Canvas: 108.3mm x 105mm (diperkirakan berdasarkan PDF)
-    const canvasWidth = 108.3 * 3.7795275591; // convert mm to px (1mm = 3.7795px)
-    const canvasHeight = 105 * 3.7795275591; // convert mm to px (1mm = 3.7795px)
+    const canvasWidth = bg_w * mmToPx; // convert mm to px (1mm = 3.7795px)
+    const canvasHeight = bg_h * mmToPx; // convert mm to px (1mm = 3.7795px)
     itemPreviewCanvas.width = canvasWidth;
     itemPreviewCanvas.height = canvasHeight;
 
@@ -54,52 +78,50 @@ const renderText = (ctx, item) => {
     ctx.fillStyle = "black";
 
     // Posisi dan Ukuran Teks untuk PDF
-    const mmToPx = 3.7795275591; // 1mm = 3.7795px
-    const ptToPx = 1.3333; 
 
-    const name_x = 69 * mmToPx, name_y = 38 * mmToPx;
-    const submerk_x = 69 * mmToPx, submerk_y = 44.6 * mmToPx;
-    const volume_x = 69 * mmToPx, volume_y = 49.1 * mmToPx;
-    const jual_x = 101.2 * mmToPx, jual_y = 68.9 * mmToPx;
-    const coret_x1 = 62.8 * mmToPx, coret_y1 = 64.8 * mmToPx, coret_x2 = 99.4 * mmToPx, coret_y2 = 59.8 * mmToPx;
-    const periode_x = 101.2 * mmToPx, periode_y = 100 * mmToPx;
-    const price_x = 101.2 * mmToPx, price_y = 86.9 * mmToPx;
+    const cmerk_x = name_x * mmToPx, cmerk_y = name_y * mmToPx;
+    const csubmerk_x = submerk_x * mmToPx, csubmerk_y = submerk_y * mmToPx;
+    const cvolume_x = volume_x * mmToPx, cvolume_y = volume_y * mmToPx;
+    const cjual_x = jual_x * mmToPx, cjual_y = jual_y * mmToPx;
+    const ccoret_x1 = coret_x1 * mmToPx, ccoret_y1 = coret_y1 * mmToPx, ccoret_x2 = coret_x2 * mmToPx, ccoret_y2 = coret_y2 * mmToPx;
+    const cperiode_x = periode_x * mmToPx, cperiode_y = periode_y * mmToPx;
+    const cprice_x = price_x * mmToPx, cprice_y = price_y * mmToPx;
 
 
     // Render Merk
-    ctx.font = `bold ${28*ptToPx}px Helvetica`; // Adjust font size for 'Merk'
+    ctx.font = `bold ${merkSize*ptToPx}px Helvetica`; // Adjust font size for 'Merk'
     ctx.textAlign = "center";
-    ctx.fillText(item.merk, name_x, name_y);
+    ctx.fillText(item.merk, cmerk_x, cmerk_y);
 
     // Render Submerk
-    ctx.font = `bold ${11.5*ptToPx}px Helvetica`; // Adjust font size for 'Submerk'
-    ctx.fillText(item.submerk, submerk_x, submerk_y);
+    ctx.font = `bold ${submerkSize*ptToPx}px Helvetica`; // Adjust font size for 'Submerk'
+    ctx.fillText(item.submerk, csubmerk_x, csubmerk_y);
 
     // Render Volume
-    ctx.fillText(item.volume, volume_x, volume_y);
+    ctx.fillText(item.volume, cvolume_x, cvolume_y);
 
     // Render Harga Jual
-    ctx.font = `bold ${37.9*ptToPx}px Helvetica`; // Adjust font size for 'Jual'
+    ctx.font = `bold ${jualSize*ptToPx}px Helvetica`; // Adjust font size for 'Jual'
     ctx.textAlign = "right";
-    ctx.fillText(item.jual, jual_x, jual_y);
+    ctx.fillText(item.jual, cjual_x, cjual_y);
 
     // Render garis coret
     ctx.strokeStyle = "red";
     ctx.lineWidth = 5;
     ctx.beginPath();
-    ctx.moveTo(coret_x1, coret_y1);
-    ctx.lineTo(coret_x2, coret_y2);
+    ctx.moveTo(ccoret_x1, ccoret_y1);
+    ctx.lineTo(ccoret_x2, ccoret_y2);
     ctx.stroke();
 
     // Render Promo
-    ctx.font = `bold ${49*ptToPx}px Helvetica`; // Adjust font size for 'Promo'
+    ctx.font = `bold ${promoSize*ptToPx}px Helvetica`; // Adjust font size for 'Promo'
     ctx.fillStyle = "red";
-    ctx.fillText(item.promo, price_x, price_y);
+    ctx.fillText(item.promo, cprice_x, cprice_y);
 
     // Render Periode
-    ctx.font = `bold ${10*ptToPx}px Helvetica`; // Adjust font size for 'Periode'
+    ctx.font = `bold ${periodeSize*ptToPx}px Helvetica`; // Adjust font size for 'Periode'
     ctx.fillStyle = "black";
-    ctx.fillText(`Periode: ${formatTanggalTabel(item.dari)} - ${formatTanggalTabel(item.sampai)}`, periode_x, periode_y);
+    ctx.fillText(`Periode: ${formatTanggalTabel(item.dari)} - ${formatTanggalTabel(item.sampai)}`, cperiode_x, cperiode_y);
 };
 
 
@@ -155,9 +177,6 @@ const parseTanggalExcel = (tanggalExcel) => {
 
     return "Invalid Date"; // Jika format tidak dikenali
 };
-
-
-
 
 // Format tanggal untuk tampilan: dari YYYY-MM-DD menjadi DD MMMM YYYY
 const formatTanggal = (tanggalInput) => {
@@ -236,7 +255,6 @@ const renderTable = (data) => {
         updatePreview();
     }
 };
-
 
 // Add/Edit Item
 itemForm.addEventListener("submit", (e) => {
@@ -356,17 +374,8 @@ addItemButton.addEventListener('click', () => {
         const pdf = new jsPDF("landscape", "mm", [325, 210]);
         const background = "background.jpg";
 
-        let bg_w = 108.3, bg_h = 105;
-        let name_x = 69,name_y=38; 
-        let submerk_x = 69,submerk_y=44.6;
-        let volume_x = 69,volume_y=49.1;
-        let jual_x=101.2,jual_y=68.9;
-        let coret_x1=62.8,coret_y1=64.8,coret_x2=99.4,coret_y2=59.8;
-        let periode_x=101.2,periode_y=100;
-        let price_x=101.2,price_y=86.9;
 
         let x = 0, y = 0;
-        // JUAL | PROMO | DARI | SAMPAI | MERK | SUBMERK | VOLUME
         data.forEach((item, index) => {
             // Jika index data habis dibagi 6 (misal 6,12,18 dst) maka tambah halaman baru
 
@@ -382,32 +391,32 @@ addItemButton.addEventListener('click', () => {
 
             // Set Teks Merk
             pdf.setTextColor('black');
-            pdf.setFontSize(28);
+
+            pdf.setFontSize(merkSize);
             pdf.text(item.merk, x + name_x, y + name_y,'center');
 
             // Set Teks Submerk
             pdf.setTextColor('black');
-            pdf.setFontSize(11.5);
+            pdf.setFontSize(submerkSize);
             pdf.text(item.submerk, x + submerk_x, y + submerk_y,'center');
             
             // Set Teks Volume
             pdf.setTextColor('black');
-            pdf.setFontSize(11.5);
+            pdf.setFontSize(volSize);
             pdf.text(item.volume, x + volume_x, y + volume_y,'center');
 
             // Set Teks Jual
-            pdf.setFontSize(37.9);
+            pdf.setFontSize(jualSize);
             pdf.setTextColor('black');
             pdf.text(`${item.jual}`, x + jual_x, y + jual_y,'right');
 
             // Set Garis Coret 
-            // line(x1, y1, x2, y2, style)
             pdf.setDrawColor('red'); 
             pdf.setLineWidth(1.2);
             pdf.line(x+coret_x1, y+coret_y1,x+coret_x2, y+coret_y2);
 
             // Set Teks Promo
-            pdf.setFontSize(49);
+            pdf.setFontSize(promoSize);
             pdf.setTextColor('red');
             pdf.text(`${item.promo}`, x + price_x, y + price_y,'right');
 
@@ -416,7 +425,7 @@ addItemButton.addEventListener('click', () => {
             const dariFormatted = formatTanggalTabel(item.dari);
             const sampaiFormatted = formatTanggalTabel(item.sampai);
 
-            pdf.setFontSize(10);
+            pdf.setFontSize(periodeSize);
             pdf.setTextColor('black');
             pdf.text(`Periode: ${dariFormatted} - ${sampaiFormatted}`, x + periode_x, y + periode_y,'right');
 

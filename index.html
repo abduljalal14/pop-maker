@@ -10,10 +10,15 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Label Harga Generator</h1>
+        <h1 class="text-center">POP Maker - Coret Harga</h1>
         <div class="d-flex justify-content-between my-4">
             <button class="btn btn-primary" id="addItem">Tambah Item</button>
-            <input type="file" id="importExcel" class="form-control w-25" accept=".xlsx, .xls" />
+            <div>
+                <button id="importExcelButton" class="btn btn-primary btn-success">Import Excel</button>
+                <a href="Template POP Coret Harga.xlsx" class="btn btn-primary btn-secondary">Unduh Template Excel</a>
+                <input type="file" id="importExcel" class="form-control w-25" accept=".xlsx, .xls" style="display: none;">
+            </div>
+            
         </div>
 
         <!-- Preview Section -->
@@ -77,6 +82,9 @@
                         <div class="mb-3">
                             <label for="promo" class="form-label">Promo</label>
                             <input type="number" id="promo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <h6>Periode</h6>
                         </div>
                         <div class="mb-3">
                             <label for="dari" class="form-label">Dari</label>
