@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    
 const tableBody = document.querySelector("#dataTable tbody");
 const addItemButton = document.getElementById("addItem");
 const importExcel = document.getElementById("importExcel");
@@ -19,7 +20,11 @@ const nextItemButton = document.getElementById("nextItem");
 const dataLabel = document.getElementById("dataLabel");
 let currentItemIndex = 0; 
 
-const data = [];
+//const data = [];
+const savedData = localStorage.getItem("tableData");
+const data = savedData ? JSON.parse(savedData) : []; // Parse atau gunakan array kosong jika tidak ada data
+
+
 let filename;
 
 let editIndex = null;
@@ -35,7 +40,7 @@ const submerk_x = 69,submerk_y=44.6;
 const volume_x = 69,volume_y=49.1;
 const jual_x=101.2,jual_y=68.9;
 const coret_x1=62.8,coret_y1=64.8,coret_x2=99.4,coret_y2=59.8;
-const periode_x=101.2,periode_y=100;
+const periode_x=101.2,periode_y=93;
 const price_x=101.2,price_y=86.9;
 
 const merkSize = 28;
@@ -251,10 +256,32 @@ const renderTable = (data) => {
         `;
         tableBody.appendChild(row);
     });
+
+    // Simpan data ke localStorage
+    localStorage.setItem("tableData", JSON.stringify(data));
+
     if (data.length > 0) {
         updatePreview();
     }
 };
+
+renderTable(data);
+
+document.getElementById("clearData").addEventListener("click", () => {
+    // Konfirmasi sebelum menghapus semua data
+    const confirmDelete = confirm("Apakah Anda yakin ingin menghapus semua data?");
+    if (confirmDelete) {
+        // Kosongkan data tabel
+        const data = [];
+        renderTable(data);
+
+        // Hapus data dari localStorage
+        localStorage.removeItem("tableData");
+
+        alert("Semua data telah dihapus.");
+    }
+});
+
 
 // Add/Edit Item
 itemForm.addEventListener("submit", (e) => {
@@ -358,9 +385,12 @@ tableBody.addEventListener("click", (e) => {
         editIndex = index;
         itemModal.show();
     } else if (e.target.classList.contains("deleteItem")) {
-        const index = e.target.dataset.index;
-        data.splice(index, 1);
-        renderTable(data);
+        const confirmDelete = confirm("Apakah Anda yakin ingin menghapus item ini?");
+        if (confirmDelete) {
+            const index = e.target.dataset.index;
+            data.splice(index, 1);
+            renderTable(data);
+        }
     }
 });
     
