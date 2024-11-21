@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Label Harga Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Label Harga Generator</h1>
+        <div class="d-flex justify-content-between my-4">
+            <button class="btn btn-primary" id="addItem">Tambah Item</button>
+            <input type="file" id="importExcel" class="form-control w-25" accept=".xlsx, .xls" />
+        </div>
+
+        <!-- Preview Section -->
+        <div class="my-5 text-center">
+            <canvas id="itemPreview" width="1225" height="793"></canvas>
+            <div class="mt-3">
+                <button class="btn btn-secondary" id="prevItem">Prev</button>
+                <span id="dataLabel"></span>  <!-- Label untuk data yang sedang ditampilkan -->
+                <button class="btn btn-secondary" id="nextItem">Next</button>
+            </div>
+        </div>
+
+        <table class="table table-bordered" id="dataTable">
+            <thead>
+                <tr>
+                    <!-- JUAL | PROMO | DARI | SAMPAI | MERK | SUBMERK | VOLUME -->
+                    <th>No</th>
+                    <th>Merk</th>
+                    <th>Submerk</th>
+                    <th>Volume</th>
+                    <th>Jual</th>
+                    <th>Promo</th>
+                    <th>Dari</th>
+                    <th>Sampai</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <button class="btn btn-success" id="generatePDF">Generate PDF</button>
+    </div>
+
+    <!-- Modal Tambah/Edit Item -->
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Tambah Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm">
+                        <!-- JUAL | PROMO | DARI | SAMPAI | MERK | SUBMERK | VOLUME -->
+                        <div class="mb-3">
+                            <label for="merk" class="form-label">Merk</label>
+                            <input type="text" id="merk" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="submerk" class="form-label">Submerk</label>
+                            <input type="text" id="submerk" class="form-control" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="volume" class="form-label">Volume</label>
+                            <input type="text" id="volume" class="form-control" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="jual" class="form-label">Jual</label>
+                            <input type="number" id="jual" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="promo" class="form-label">Promo</label>
+                            <input type="number" id="promo" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dari" class="form-label">Dari</label>
+                            <input type="date" id="dari" class="form-control" >
+                        </div>
+                        <div class="mb-3">
+                            <label for="sampai" class="form-label">Sampai</label>
+                            <input type="date" id="sampai" class="form-control" >
+                        </div>
+                        <button type="submit" class="btn btn-primary">Tambah</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
