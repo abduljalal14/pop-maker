@@ -461,7 +461,7 @@ importExcel.addEventListener("change", (e) => {
                 // Set Teks Catatan
                 pdf.setTextColor('black');
                 pdf.setFontSize(noteSize);
-                pdf.text(item.note, x + note_x, y + note_y,'center');
+                pdf.text(item.note, x + note_x, y + note_y,'right');
 
                 // Jika index+1 data habis dibagi 3, maka reset x dan, y pindah p
                 if ((index + 1) % 3 === 0) {

@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const note_x=101.2,note_y=98;
     const price_x=101.2,price_y=86.9;
     
-    const judulSize = 24;
+    const judulSize = 35;
     const merkSize = 28;
     const submerkSize = 11.5;
     const volSize = 11.5;
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     const mmToPx = 3.7795275591; // 1mm = 3.7795px
     const ptToPx = 1.3333; 
-    
+    console.log(24*3.7795275591);
     
     const renderCanvas = (item) => {
         const ctx = itemPreviewCanvas.getContext("2d");
@@ -93,11 +93,56 @@ document.addEventListener("DOMContentLoaded", () => {
         const cperiode_x = periode_x * mmToPx, cperiode_y = periode_y * mmToPx;
         const cprice_x = price_x * mmToPx, cprice_y = price_y * mmToPx;
     
-        // Render Judul
-        ctx.fillStyle = "white";
-        ctx.font = `bold ${judulSize*ptToPx}px Helvetica`; // Adjust font size for 'Merk'
-        ctx.textAlign = "center";
-        ctx.fillText(item.judul, cjudul_x, cjudul_y);
+       // Render Judul
+ctx.fillStyle = "white";
+
+// Hitung lebar teks dalam piksel
+let fontSize = judulSize * ptToPx; // Awalnya gunakan ukuran font default
+ctx.font = `bold ${fontSize}px Helvetica`; 
+let textWidth = ctx.measureText(item.judul).width;
+
+// Periksa apakah teks melebihi batas
+const maxWidth = bg_w * mmToPx; // Lebar maksimum area judul
+if (textWidth > maxWidth) {
+    // Skala ukuran font jika teks terlalu panjang
+    fontSize *= maxWidth / textWidth;
+    ctx.font = `bold ${fontSize}px Helvetica`;
+    textWidth = ctx.measureText(item.judul).width; // Perbarui lebar teks
+}
+
+// Jika teks masih terlalu panjang, bungkus teks ke baris baru
+const lines = [];
+const words = item.judul.split(" ");
+let currentLine = "";
+
+words.forEach((word) => {
+    const testLine = currentLine ? currentLine + " " + word : word;
+    const testWidth = ctx.measureText(testLine).width;
+
+    if (testWidth <= maxWidth) {
+        currentLine = testLine; // Tambahkan kata ke baris saat ini
+    } else {
+        lines.push(currentLine); // Pindahkan baris ke array
+        currentLine = word;     // Mulai baris baru dengan kata saat ini
+    }
+});
+
+// Tambahkan baris terakhir ke array
+if (currentLine) {
+    lines.push(currentLine);
+}
+
+// Atur teks pada posisi yang sesuai (pusat vertikal jika multi-baris)
+const lineHeight = fontSize * 1.2; // Sesuaikan tinggi baris
+const totalHeight = lines.length * lineHeight;
+let startY = cjudul_y - totalHeight / 2 + lineHeight / 2;
+
+lines.forEach((line) => {
+    ctx.textAlign = "center";
+    ctx.fillText(line, cjudul_x, startY);
+    startY += lineHeight;
+});
+
     
         // Render Merk
         ctx.fillStyle = "black";
@@ -422,6 +467,26 @@ document.addEventListener("DOMContentLoaded", () => {
     addItemButton.addEventListener('click', () => {
         itemModal.show(); // Tampilkan modal saat tombol 'Tambah Item' ditekan
     });    
+
+
+    function renderScaledTextWithMargin(pdf, text, x, y, maxWidth, defaultFontSize, margin = 5) {
+        let fontSize = defaultFontSize; // Awalnya gunakan ukuran font default
+        pdf.setFontSize(fontSize);
+    
+        // Hitung lebar teks dalam satu baris
+        let textWidth = pdf.getStringUnitWidth(text) * fontSize / pdf.internal.scaleFactor;
+    
+        // Skala ukuran font jika teks terlalu panjang
+        while (textWidth > (maxWidth - margin * 2)) { // Kurangi margin dari lebar maksimum
+            fontSize -= 1;  // Kurangi ukuran font sedikit demi sedikit
+            pdf.setFontSize(fontSize);  // Terapkan ukuran font yang baru
+            textWidth = pdf.getStringUnitWidth(text) * fontSize / pdf.internal.scaleFactor;  // Hitung ulang lebar teks
+        }
+    
+        // Gambar teks pada posisi yang sesuai
+        pdf.text(text, x, y, { align: "center" });
+    }
+    
     
         // Generate PDF
         generatePDF.addEventListener("click", () => {
@@ -444,11 +509,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 pdf.setFont("Helvetica", "bold"); 
 
-                // Set Teks Merk
-                pdf.setTextColor('white');
+                // Set Teks Judul
+                // pdf.setTextColor('white');
     
-                pdf.setFontSize(judulSize);
-                pdf.text(item.judul, x + judul_x, y + judul_y,'center');
+                // pdf.setFontSize(judulSize);
+                // pdf.text(item.judul, x + judul_x, y + judul_y,'center');
+
+                pdf.setTextColor('white');
+                renderScaledTextWithMargin(pdf, item.judul, judul_x, judul_y, bg_w, judulSize,2);
     
                 // Set Teks Merk
                 pdf.setTextColor('black');
@@ -483,7 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Set Teks Catatan
                 pdf.setTextColor('black');
                 pdf.setFontSize(noteSize);
-                pdf.text(item.note, x + note_x, y + note_y,'center');
+                pdf.text(item.note, x + note_x, y + note_y,'right');
 
                 // Jika index+1 data habis dibagi 3, maka reset x dan, y pindah p
                 if ((index + 1) % 3 === 0) {
