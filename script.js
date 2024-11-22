@@ -12,6 +12,7 @@ const jualInput = document.getElementById("jual");
 const promoInput = document.getElementById("promo");
 const dariInput = document.getElementById("dari");
 const sampaiInput = document.getElementById("sampai");
+const noteInput = document.getElementById("note");
 const itemForm = document.getElementById("itemForm");
 
 const itemPreviewCanvas = document.getElementById("itemPreview");
@@ -41,6 +42,7 @@ const volume_x = 69,volume_y=49.1;
 const jual_x=101.2,jual_y=68.9;
 const coret_x1=62.8,coret_y1=64.8,coret_x2=99.4,coret_y2=59.8;
 const periode_x=101.2,periode_y=93;
+const note_x=101.2,note_y=98;
 const price_x=101.2,price_y=86.9;
 
 const merkSize = 28;
@@ -49,6 +51,7 @@ const volSize = 11.5;
 const jualSize = 37.9;
 const promoSize = 49;
 const periodeSize = 10;
+const noteSize = 10;
 
 const mmToPx = 3.7795275591; // 1mm = 3.7795px
 const ptToPx = 1.3333; 
@@ -90,6 +93,7 @@ const renderText = (ctx, item) => {
     const cjual_x = jual_x * mmToPx, cjual_y = jual_y * mmToPx;
     const ccoret_x1 = coret_x1 * mmToPx, ccoret_y1 = coret_y1 * mmToPx, ccoret_x2 = coret_x2 * mmToPx, ccoret_y2 = coret_y2 * mmToPx;
     const cperiode_x = periode_x * mmToPx, cperiode_y = periode_y * mmToPx;
+    const cnote_x = note_x * mmToPx, cnote_y = note_y * mmToPx;
     const cprice_x = price_x * mmToPx, cprice_y = price_y * mmToPx;
 
 
@@ -127,6 +131,11 @@ const renderText = (ctx, item) => {
     ctx.font = `bold ${periodeSize*ptToPx}px Helvetica`; // Adjust font size for 'Periode'
     ctx.fillStyle = "black";
     ctx.fillText(`Periode: ${formatTanggalTabel(item.dari)} - ${formatTanggalTabel(item.sampai)}`, cperiode_x, cperiode_y);
+
+    // Render Note
+    ctx.font = `bold ${noteSize*ptToPx}px Helvetica`; // Adjust font size for 'Submerk'
+    ctx.fillText(item.note, cnote_x, cnote_y);
+
 };
 
 
@@ -184,20 +193,30 @@ const parseTanggalExcel = (tanggalExcel) => {
 };
 
 // Format tanggal untuk tampilan: dari YYYY-MM-DD menjadi DD MMMM YYYY
+// const formatTanggal = (tanggalInput) => {
+//     if (typeof tanggalInput !== "string" || !tanggalInput.includes("-")) {
+//         return "Invalid Date"; // Penanganan jika input tidak valid
+//     }
+
+//     const [year, month, day] = tanggalInput.split("-");
+//     const monthNames = [
+//         "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+//         "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+//     ];
+
+//     return `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
+// };
+
 const formatTanggal = (tanggalInput) => {
     if (typeof tanggalInput !== "string" || !tanggalInput.includes("-")) {
         return "Invalid Date"; // Penanganan jika input tidak valid
     }
 
     const [year, month, day] = tanggalInput.split("-");
-    const monthNames = [
-        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-    ];
 
-    return `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
+    // Format ulang menjadi YYYY-MM-DD
+    return `${year}-${month}-${day}`;
 };
-
 // Fungsi untuk mengonversi tanggal input dalam format DD/MM/YYYY dari Excel
 const parseTanggalInput = (tanggal) => {
     if (!tanggal) return "";
@@ -249,6 +268,7 @@ const renderTable = (data) => {
             <td>${item.promo}</td>
             <td>${formatTanggalTabel(item.dari)}</td>
             <td>${formatTanggalTabel(item.sampai)}</td>
+            <td>${item.note}</td>
             <td>
                 <button class="btn btn-warning btn-sm editItem" data-index="${index}">Edit</button>
                 <button class="btn btn-danger btn-sm deleteItem" data-index="${index}">Delete</button>
@@ -292,7 +312,9 @@ itemForm.addEventListener("submit", (e) => {
     const jual = jualInput.value;
     const promo = promoInput.value;
     const dari = dariInput.value; // Tetap dalam format input YYYY-MM-DD
+    console.log(dari);
     const sampai = sampaiInput.value;
+    const note = noteInput.value;
 
     const fJual = parseFloat(jual).toLocaleString("id-ID");
     const fPromo = parseFloat(promo).toLocaleString("id-ID");
@@ -300,6 +322,7 @@ itemForm.addEventListener("submit", (e) => {
     // Format tanggal untuk penyimpanan
     const formattedDari = formatTanggal(dari); // Format ke "15 November 2024"
     const formattedSampai = formatTanggal(sampai);
+    console.log(formattedDari);
 
     if (editIndex !== null) {
         // Update item di array data
@@ -310,7 +333,8 @@ itemForm.addEventListener("submit", (e) => {
             jual: fJual,
             promo: fPromo,
             dari: formattedDari,
-            sampai: formattedSampai
+            sampai: formattedSampai,
+            note
         };
         editIndex = null;
     } else {
@@ -322,7 +346,8 @@ itemForm.addEventListener("submit", (e) => {
             jual: fJual,
             promo: fPromo,
             dari: formattedDari,
-            sampai: formattedSampai
+            sampai: formattedSampai,
+            note
         });
     }
 
@@ -333,39 +358,64 @@ itemForm.addEventListener("submit", (e) => {
 
 // Import Excel
 importExcel.addEventListener("change", (e) => {
+    console.log("File input changed:", e.target.files);
+    
     const file = e.target.files[0];
     if (file) {
+        console.log("File selected:", file.name);
+
         const reader = new FileReader();
         reader.onload = (event) => {
+            console.log("FileReader loaded data");
+
             try {
                 const workbook = XLSX.read(event.target.result, { type: "binary" });
-                const sheetName = workbook.SheetNames[0];
-                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                console.log("Workbook loaded:", workbook);
 
-                sheetData.forEach((row) => {
+                const sheetName = workbook.SheetNames[0];
+                console.log("Sheet name:", sheetName);
+
+                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                console.log("Sheet data:", sheetData);
+
+                sheetData.forEach((row, index) => {
+                    console.log(`Processing row ${index + 1}:`, row);
+
                     if (row["MERK"] && row["SUBMERK"] && row["DARI"] && row["SAMPAI"]) {
                         const dariDate = row["DARI"];
                         const sampaiDate = row["SAMPAI"];
 
-                        data.push({
+                        const formattedRow = {
                             merk: row["MERK"],
                             submerk: row["SUBMERK"],
-                            volume: row["VOLUME"],
-                            jual: row["JUAL"].toLocaleString("id-ID"),
-                            promo: row["PROMO"].toLocaleString("id-ID"),
-                            dari: parseTanggalExcel(dariDate),  // Ubah format tanggal
-                            sampai: parseTanggalExcel(sampaiDate) // Ubah format tanggal
-                        });
+                            volume: row["VOLUME"] || 0, // Default to 0 if undefined
+                            jual: row["JUAL"] ? row["JUAL"].toLocaleString("id-ID") : "0", // Handle undefined
+                            promo: row["PROMO"] ? row["PROMO"].toLocaleString("id-ID") : "0", // Handle undefined
+                            dari: parseTanggalExcel(dariDate), // Ubah format tanggal
+                            sampai: parseTanggalExcel(sampaiDate), // Ubah format tanggal
+                            note: row["CATATAN"] !== undefined ? row["CATATAN"] : ""
+                        };
+                        console.log("Formatted row:", formattedRow);
+
+                        data.push(formattedRow);
+                    } else {
+                        console.warn(`Incomplete data on row ${index + 1}:`, row);
                     }
                 });
+
+                console.log("Final data:", data);
                 renderTable(data);
             } catch (error) {
                 console.error("Error processing file:", error);
             }
         };
+
         reader.readAsBinaryString(file);
+    } else {
+        console.warn("No file selected");
     }
 });
+
 
 // Edit/Delete Actions
 tableBody.addEventListener("click", (e) => {
@@ -379,8 +429,12 @@ tableBody.addEventListener("click", (e) => {
         promoInput.value = item.promo.replace(/\./g, "").replace(",", ".");
         
         // Pastikan tanggal valid untuk input
-        dariInput.value = item.dari ? parseTanggalInput(item.dari) : "";
-        sampaiInput.value = item.sampai ? parseTanggalInput(item.sampai) : "";
+        console.log(item.dari);
+        console.log(parseTanggalInput(item.dari));
+        dariInput.value = item.dari;
+        sampaiInput.value = item.sampai;
+
+        noteInput.value = item.note;
 
         editIndex = index;
         itemModal.show();
@@ -458,6 +512,11 @@ addItemButton.addEventListener('click', () => {
             pdf.setFontSize(periodeSize);
             pdf.setTextColor('black');
             pdf.text(`Periode: ${dariFormatted} - ${sampaiFormatted}`, x + periode_x, y + periode_y,'right');
+
+            // Set Teks Catatan
+            pdf.setTextColor('black');
+            pdf.setFontSize(noteSize);
+            pdf.text(item.note, x + note_x, y + note_y,'center');
 
             // Jika index+1 data habis dibagi 3, maka reset x dan, y pindah p
             if ((index + 1) % 3 === 0) {

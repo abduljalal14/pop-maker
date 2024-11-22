@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
+    
     const tableBody = document.querySelector("#dataTable tbody");
     const addItemButton = document.getElementById("addItem");
     const importExcel = document.getElementById("importExcel");
     const generatePDF = document.getElementById("generatePDF");
     const itemModal = new bootstrap.Modal(document.getElementById("itemModal"));
+    const judulInput = document.getElementById("judul");
     const merkInput = document.getElementById("merk");
     const submerkInput = document.getElementById("submerk");
     const volumeInput = document.getElementById("volume");
-    const diskonInput = document.getElementById("diskon");
+    const promoInput = document.getElementById("promo");
     const dariInput = document.getElementById("dari");
-    const sampaiInput = document.getElementById("sampai")
+    const sampaiInput = document.getElementById("sampai");
     const noteInput = document.getElementById("note");;
     const itemForm = document.getElementById("itemForm");
     
@@ -19,31 +21,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const dataLabel = document.getElementById("dataLabel");
     let currentItemIndex = 0; 
     
-    const savedData = localStorage.getItem("tableDataDiskon");
+    //const data = [];
+    const savedData = localStorage.getItem("tableDataGratis");
     const data = savedData ? JSON.parse(savedData) : []; // Parse atau gunakan array kosong jika tidak ada data
-
+    
+    
     let filename;
     
     let editIndex = null;
     
     document.getElementById('importExcelButton').addEventListener('click', function() {
-        console.log('click import')
         document.getElementById('importExcel').click();
           });
     
     // Size & Koordinat
     const bg_w = 108.3, bg_h = 105;
-    const name_x = 69,name_y=38; 
+    const judul_x=54.681,judul_y=17;
+    const merk_x = 69,merk_y=38; 
     const submerk_x = 69,submerk_y=44.6;
     const volume_x = 69,volume_y=49.1;
-    const periode_x=101.2,periode_y=94;
+    const periode_x=101.2,periode_y=93;
     const note_x=101.2,note_y=98;
-    const diskon_x=55,diskon_y=88;
+    const price_x=101.2,price_y=86.9;
     
+    const judulSize = 24;
     const merkSize = 28;
     const submerkSize = 11.5;
     const volSize = 11.5;
-    const diskonSize = 72;
+    const promoSize = 61;
     const periodeSize = 10;
     const noteSize = 10;
     
@@ -63,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         // Set background image
         const backgroundImage = new Image();
-        backgroundImage.src = "background-diskon.jpg";  // Path to your background image
+        backgroundImage.src = "background-gratis.jpg";  // Path to your background image
     
         backgroundImage.onload = function() {
             // Draw the background image
@@ -80,16 +85,22 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillStyle = "black";
     
         // Posisi dan Ukuran Teks untuk PDF
-    
-        const cmerk_x = name_x * mmToPx, cmerk_y = name_y * mmToPx;
+        const cjudul_x = judul_x * mmToPx, cjudul_y = judul_y * mmToPx;
+        const cmerk_x = merk_x * mmToPx, cmerk_y = merk_y * mmToPx;
         const csubmerk_x = submerk_x * mmToPx, csubmerk_y = submerk_y * mmToPx;
         const cvolume_x = volume_x * mmToPx, cvolume_y = volume_y * mmToPx;
-        const cperiode_x = periode_x * mmToPx, cperiode_y = periode_y * mmToPx;
         const cnote_x = note_x * mmToPx, cnote_y = note_y * mmToPx;
-        const cdiskon_x = diskon_x * mmToPx, cdiskon_y = diskon_y * mmToPx;
+        const cperiode_x = periode_x * mmToPx, cperiode_y = periode_y * mmToPx;
+        const cprice_x = price_x * mmToPx, cprice_y = price_y * mmToPx;
     
+        // Render Judul
+        ctx.fillStyle = "white";
+        ctx.font = `bold ${judulSize*ptToPx}px Helvetica`; // Adjust font size for 'Merk'
+        ctx.textAlign = "center";
+        ctx.fillText(item.judul, cjudul_x, cjudul_y);
     
         // Render Merk
+        ctx.fillStyle = "black";
         ctx.font = `bold ${merkSize*ptToPx}px Helvetica`; // Adjust font size for 'Merk'
         ctx.textAlign = "center";
         ctx.fillText(item.merk, cmerk_x, cmerk_y);
@@ -101,14 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // Render Volume
         ctx.fillText(item.volume, cvolume_x, cvolume_y);
     
-        // Render diskon
-        ctx.textAlign = "center";
-        ctx.font = `bold ${diskonSize*ptToPx}px Helvetica`; // Adjust font size for 'diskon'
+        // Render Promo
+        ctx.textAlign = "right";
+        ctx.font = `bold ${promoSize*ptToPx}px Helvetica`; // Adjust font size for 'Promo'
         ctx.fillStyle = "red";
-        ctx.fillText(`${item.diskon}`, cdiskon_x, cdiskon_y);
+        ctx.fillText(item.promo, cprice_x, cprice_y);
     
         // Render Periode
-        ctx.textAlign = "right";
         ctx.font = `bold ${periodeSize*ptToPx}px Helvetica`; // Adjust font size for 'Periode'
         ctx.fillStyle = "black";
         ctx.fillText(`Periode: ${formatTanggalTabel(item.dari)} - ${formatTanggalTabel(item.sampai)}`, cperiode_x, cperiode_y);
@@ -228,10 +238,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${index + 1}</td>
+                <td>${item.judul}</td>
                 <td>${item.merk}</td>
                 <td>${item.submerk}</td>
                 <td>${item.volume}</td>
-                <td>${item.diskon}</td>
+                <td>${item.promo}</td>
                 <td>${formatTanggalTabel(item.dari)}</td>
                 <td>${formatTanggalTabel(item.sampai)}</td>
                 <td>${item.note}</td>
@@ -242,15 +253,17 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             tableBody.appendChild(row);
         });
-
+    
         // Simpan data ke localStorage
-        localStorage.setItem("tableDataDiskon", JSON.stringify(data));
+        localStorage.setItem("tableDataGratis", JSON.stringify(data));
+    
         if (data.length > 0) {
             updatePreview();
         }
     };
+    
     renderTable(data);
-
+    
     document.getElementById("clearData").addEventListener("click", () => {
         // Konfirmasi sebelum menghapus semua data
         const confirmDelete = confirm("Apakah Anda yakin ingin menghapus semua data?");
@@ -260,23 +273,25 @@ document.addEventListener("DOMContentLoaded", () => {
             renderTable(data);
     
             // Hapus data dari localStorage
-            localStorage.removeItem("tableDataDiskon");
+            localStorage.removeItem("tableDataGratis");
     
             alert("Semua data telah dihapus.");
         }
     });
     
+    
     // Add/Edit Item
     itemForm.addEventListener("submit", (e) => {
         e.preventDefault();
+        const judul = judulInput.value;
         const merk = merkInput.value;
         const submerk = submerkInput.value;
         const volume = volumeInput.value;
-        const diskon = diskonInput.value;
+        const promo = promoInput.value;
         const dari = dariInput.value; // Tetap dalam format input YYYY-MM-DD
         const sampai = sampaiInput.value;
         const note = noteInput.value;
-        const fdiskon = (diskon);
+        const fPromo = parseFloat(promo).toLocaleString("id-ID");
     
         // Format tanggal untuk penyimpanan
         const formattedDari = formatTanggal(dari); // Format ke "15 November 2024"
@@ -285,10 +300,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (editIndex !== null) {
             // Update item di array data
             data[editIndex] = {
+                judul,
                 merk,
                 submerk,
                 volume,
-                diskon: fdiskon,
+                promo: fPromo,
                 dari: formattedDari,
                 sampai: formattedSampai,
                 note
@@ -297,10 +313,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             // Tambahkan item baru ke array data
             data.push({
+                judul,
                 merk,
                 submerk,
                 volume,
-                diskon: fdiskon,
+                promo: fPromo,
                 dari: formattedDari,
                 sampai: formattedSampai,
                 note
@@ -313,93 +330,92 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     // Import Excel
-importExcel.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    console.log("File selected:", file);
-
-    if (file) {
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            console.log("FileReader onload triggered");
-            try {
-                const workbook = XLSX.read(event.target.result, { type: "binary" });
-                console.log("Workbook loaded:", workbook);
-
-                const sheetName = workbook.SheetNames[0];
-                console.log("Sheet name:", sheetName);
-
-                const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-                console.log("Sheet data:", sheetData);
-
-                sheetData.forEach((row, index) => {
-                    console.log(`Processing row ${index + 1}:`, row);
-
-                    if (row["MERK"] && row["SUBMERK"] && row["VOLUME"] && row["DISKON"] && row["DARI"] && row["SAMPAI"]) {
-                        const dariDate = row["DARI"];
-                        const sampaiDate = row["SAMPAI"];
-
-                        const formattedRow = {
-                            merk: row["MERK"],
-                            submerk: row["SUBMERK"],
-                            volume: row["VOLUME"],
-                            diskon: row["DISKON"],
-                            dari: parseTanggalExcel(dariDate), // Ubah format tanggal
-                            sampai: parseTanggalExcel(sampaiDate), // Ubah format tanggal
-                            note: row["CATATAN"] !== undefined ? row["CATATAN"] : ""
-                        };
-
-                        console.log("Formatted row:", formattedRow);
-                        data.push(formattedRow);
-                    } else {
-                        console.warn(`Row ${index + 1} is missing required fields`, row);
-                    }
-                });
-
-                console.log("Final data array:", data);
-                renderTable(data);
-            } catch (error) {
-                console.error("Error processing file:", error);
-            }
-        };
-
-        reader.onerror = (error) => {
-            console.error("FileReader encountered an error:", error);
-        };
-
-        console.log("Starting to read file as binary string");
-        reader.readAsBinaryString(file);
-    } else {
-        console.warn("No file selected");
-    }
-});
-
+    importExcel.addEventListener("change", (e) => {
+        console.log("File input changed:", e.target.files);
+        
+        const file = e.target.files[0];
+        if (file) {
+            console.log("File selected:", file.name);
+    
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                console.log("FileReader loaded data");
+    
+                try {
+                    const workbook = XLSX.read(event.target.result, { type: "binary" });
+                    console.log("Workbook loaded:", workbook);
+    
+                    const sheetName = workbook.SheetNames[0];
+                    console.log("Sheet name:", sheetName);
+    
+                    const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                    console.log("Sheet data:", sheetData);
+    
+                    sheetData.forEach((row, index) => {
+                        console.log(`Processing row ${index + 1}:`, row);
+    
+                        if (row["MERK"] && row["SUBMERK"] && row["DARI"] && row["SAMPAI"]) {
+                            const dariDate = row["DARI"];
+                            const sampaiDate = row["SAMPAI"];
+    
+                            const formattedRow = {
+                                judul: row["KETERANGAN"],
+                                merk: row["MERK"],
+                                submerk: row["SUBMERK"],
+                                volume: row["VOLUME"] || 0, // Default to 0 if undefined
+                                promo: row["PROMO"] ? row["PROMO"].toLocaleString("id-ID") : "0", // Handle undefined
+                                dari: parseTanggalExcel(dariDate), // Ubah format tanggal
+                                sampai: parseTanggalExcel(sampaiDate), // Ubah format tanggal
+                                note: row["CATATAN"] !== undefined ? row["CATATAN"] : ""
+                            };
+                            console.log("Formatted row:", formattedRow);
+    
+                            data.push(formattedRow);
+                        } else {
+                            console.warn(`Incomplete data on row ${index + 1}:`, row);
+                        }
+                    });
+    
+                    console.log("Final data:", data);
+                    renderTable(data);
+                } catch (error) {
+                    console.error("Error processing file:", error);
+                }
+            };
+    
+            reader.readAsBinaryString(file);
+        } else {
+            console.warn("No file selected");
+        }
+    });
+    
     
     // Edit/Delete Actions
     tableBody.addEventListener("click", (e) => {
         if (e.target.classList.contains("editItem")) {
             const index = e.target.dataset.index;
             const item = data[index];
+            judulInput.value = item.judul;
             merkInput.value = item.merk;
             submerkInput.value = item.submerk;
             volumeInput.value = item.volume;
-            diskonInput.value = item.diskon;
+            promoInput.value = item.promo.replace(/\./g, "").replace(",", ".");
             
             // Pastikan tanggal valid untuk input
             dariInput.value = item.dari;
             sampaiInput.value = item.sampai;
-    
+            
             noteInput.value = item.note;
 
             editIndex = index;
             itemModal.show();
         } else if (e.target.classList.contains("deleteItem")) {
             const confirmDelete = confirm("Apakah Anda yakin ingin menghapus item ini?");
-        if (confirmDelete) {
-            const index = e.target.dataset.index;
-            data.splice(index, 1);
-            renderTable(data);
-        }
+            if (confirmDelete) {
+                const index = e.target.dataset.index;
+                data.splice(index, 1);
+                renderTable(data);
+            }
         }
     });
         
@@ -411,7 +427,7 @@ importExcel.addEventListener("change", (e) => {
         generatePDF.addEventListener("click", () => {
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF("landscape", "mm", [325, 210]);
-            const background = "background-diskon.jpg";
+            const background = "background-gratis.jpg";
     
     
             let x = 0, y = 0;
@@ -427,12 +443,18 @@ importExcel.addEventListener("change", (e) => {
                 pdf.addImage(background, "JPEG", x, y, bg_w, bg_h);
                 
                 pdf.setFont("Helvetica", "bold"); 
+
+                // Set Teks Merk
+                pdf.setTextColor('white');
+    
+                pdf.setFontSize(judulSize);
+                pdf.text(item.judul, x + judul_x, y + judul_y,'center');
     
                 // Set Teks Merk
                 pdf.setTextColor('black');
     
                 pdf.setFontSize(merkSize);
-                pdf.text(item.merk, x + name_x, y + name_y,'center');
+                pdf.text(item.merk, x + merk_x, y + merk_y,'center');
     
                 // Set Teks Submerk
                 pdf.setTextColor('black');
@@ -444,10 +466,10 @@ importExcel.addEventListener("change", (e) => {
                 pdf.setFontSize(volSize);
                 pdf.text(item.volume, x + volume_x, y + volume_y,'center');
     
-                // Set Teks diskon
-                pdf.setFontSize(diskonSize);
+                // Set Teks Promo
+                pdf.setFontSize(promoSize);
                 pdf.setTextColor('red');
-                pdf.text(`${item.diskon}`, x + diskon_x, y + diskon_y,'right');
+                pdf.text(`${item.promo}`, x + price_x, y + price_y,'right');
     
                 // Set Teks Periode
     
