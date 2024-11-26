@@ -447,7 +447,7 @@ importExcel.addEventListener("change", (e) => {
                 // Set Teks diskon
                 pdf.setFontSize(diskonSize);
                 pdf.setTextColor('red');
-                pdf.text(`${item.diskon}`, x + diskon_x, y + diskon_y,'right');
+                pdf.text(`${item.diskon}`, x + diskon_x, y + diskon_y,'center');
     
                 // Set Teks Periode
     
