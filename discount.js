@@ -415,13 +415,21 @@ importExcel.addEventListener("change", (e) => {
     
     
             let x = 0, y = 0;
+            const itemsPerPage = 6; // 2 baris x 3 kolom
             data.forEach((item, index) => {
-                // Jika index data habis dibagi 6 (misal 6,12,18 dst) maka tambah halaman baru
-    
-                if (index % 6 === 0 && index !== 0) {
+                // Tambah halaman baru setiap 6 item
+                if (index % itemsPerPage === 0 && index !== 0) {
                     pdf.addPage();
-                    x = 0, y = 0;
+                    x = 0; // Reset kolom ke posisi awal
+                    y = 0; // Reset baris ke posisi awal
                 }
+
+                // Tentukan kolom dan baris
+                const column = Math.floor(index / 2) % 3; // Kolom (0, 1, 2 untuk setiap halaman)
+                const row = index % 2; // Baris (0 atau 1)
+
+                x = column * bg_w; // Kolom menentukan posisi horizontal
+                y = row * bg_h;    // Baris menentukan posisi vertikal
     
                 // Set background
                 pdf.addImage(background, "JPEG", x, y, bg_w, bg_h);
@@ -462,15 +470,6 @@ importExcel.addEventListener("change", (e) => {
                 pdf.setTextColor('black');
                 pdf.setFontSize(noteSize);
                 pdf.text(item.note, x + note_x, y + note_y,'right');
-
-                // Jika index+1 data habis dibagi 3, maka reset x dan, y pindah p
-                if ((index + 1) % 3 === 0) {
-                    x = 0;
-                    y += bg_h;
-                // Jika index+1 data tidak habis dibagi 3, maka reset x dan, y turun
-                } else {
-                    x += bg_w;
-                }
             });
     
             pdf.save(filename+".pdf");

@@ -453,81 +453,86 @@ addItemButton.addEventListener('click', () => {
 });    
 
     // Generate PDF
-    generatePDF.addEventListener("click", () => {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF("landscape", "mm", [325, 210]);
-        const background = "background.jpg";
+generatePDF.addEventListener("click", () => {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("landscape", "mm", [325, 210]);
+    const background = "background.jpg";
 
+    let x = 0, y = 0;
+    const itemsPerPage = 6; // 2 baris x 3 kolom
 
-        let x = 0, y = 0;
-        data.forEach((item, index) => {
-            // Jika index data habis dibagi 6 (misal 6,12,18 dst) maka tambah halaman baru
+    data.forEach((item, index) => {
+        // Tambah halaman baru setiap 6 item
+        if (index % itemsPerPage === 0 && index !== 0) {
+            pdf.addPage();
+            x = 0; // Reset kolom ke posisi awal
+            y = 0; // Reset baris ke posisi awal
+        }
 
-            if (index % 6 === 0 && index !== 0) {
-                pdf.addPage();
-                x = 0, y = 0;
-            }
+        // Tentukan kolom dan baris
+        const column = Math.floor(index / 2) % 3; // Kolom (0, 1, 2 untuk setiap halaman)
+        const row = index % 2; // Baris (0 atau 1)
 
-            // Set background
-            pdf.addImage(background, "JPEG", x, y, bg_w, bg_h);
-            
-            pdf.setFont("Helvetica", "bold"); 
+        x = column * bg_w; // Kolom menentukan posisi horizontal
+        y = row * bg_h;    // Baris menentukan posisi vertikal
 
-            // Set Teks Merk
-            pdf.setTextColor('black');
+        // Set background
+        pdf.addImage(background, "JPEG", x, y, bg_w, bg_h);
 
-            pdf.setFontSize(merkSize);
-            pdf.text(item.merk, x + name_x, y + name_y,'center');
+        pdf.setFont("Helvetica", "bold");
 
-            // Set Teks Submerk
-            pdf.setTextColor('black');
-            pdf.setFontSize(submerkSize);
-            pdf.text(item.submerk, x + submerk_x, y + submerk_y,'center');
-            
-            // Set Teks Volume
-            pdf.setTextColor('black');
-            pdf.setFontSize(volSize);
-            pdf.text(item.volume, x + volume_x, y + volume_y,'center');
+        // Set Teks Merk
+        pdf.setTextColor("black");
 
-            // Set Teks Jual
-            pdf.setFontSize(jualSize);
-            pdf.setTextColor('black');
-            pdf.text(`${item.jual}`, x + jual_x, y + jual_y,'right');
+        pdf.setFontSize(merkSize);
+        pdf.text(item.merk, x + name_x, y + name_y, "center");
 
-            // Set Garis Coret 
-            pdf.setDrawColor('red'); 
-            pdf.setLineWidth(1.2);
-            pdf.line(x+coret_x1, y+coret_y1,x+coret_x2, y+coret_y2);
+        // Set Teks Submerk
+        pdf.setTextColor("black");
+        pdf.setFontSize(submerkSize);
+        pdf.text(item.submerk, x + submerk_x, y + submerk_y, "center");
 
-            // Set Teks Promo
-            pdf.setFontSize(promoSize);
-            pdf.setTextColor('red');
-            pdf.text(`${item.promo}`, x + price_x, y + price_y,'right');
+        // Set Teks Volume
+        pdf.setTextColor("black");
+        pdf.setFontSize(volSize);
+        pdf.text(item.volume, x + volume_x, y + volume_y, "center");
 
-            // Set Teks Periode
+        // Set Teks Jual
+        pdf.setFontSize(jualSize);
+        pdf.setTextColor("black");
+        pdf.text(`${item.jual}`, x + jual_x, y + jual_y, "right");
 
-            const dariFormatted = formatTanggalTabel(item.dari);
-            const sampaiFormatted = formatTanggalTabel(item.sampai);
+        // Set Garis Coret
+        pdf.setDrawColor("red");
+        pdf.setLineWidth(1.2);
+        pdf.line(x + coret_x1, y + coret_y1, x + coret_x2, y + coret_y2);
 
-            pdf.setFontSize(periodeSize);
-            pdf.setTextColor('black');
-            pdf.text(`Periode: ${dariFormatted} - ${sampaiFormatted}`, x + periode_x, y + periode_y,'right');
+        // Set Teks Promo
+        pdf.setFontSize(promoSize);
+        pdf.setTextColor("red");
+        pdf.text(`${item.promo}`, x + price_x, y + price_y, "right");
 
-            // Set Teks Catatan
-            pdf.setTextColor('black');
-            pdf.setFontSize(noteSize);
-            pdf.text(item.note, x + note_x, y + note_y,'center');
+        // Set Teks Periode
+        const dariFormatted = formatTanggalTabel(item.dari);
+        const sampaiFormatted = formatTanggalTabel(item.sampai);
 
-            // Jika index+1 data habis dibagi 3, maka reset x dan, y pindah p
-            if ((index + 1) % 3 === 0) {
-                x = 0;
-                y += bg_h;
-            // Jika index+1 data tidak habis dibagi 3, maka reset x dan, y turun
-            } else {
-                x += bg_w;
-            }
-        });
+        pdf.setFontSize(periodeSize);
+        pdf.setTextColor("black");
+        pdf.text(
+            `Periode: ${dariFormatted} - ${sampaiFormatted}`,
+            x + periode_x,
+            y + periode_y,
+            "right"
+        );
 
-        pdf.save(filename+".pdf");
+        // Set Teks Catatan
+        pdf.setTextColor("black");
+        pdf.setFontSize(noteSize);
+        pdf.text(item.note, x + note_x, y + note_y, "center");
     });
+
+    pdf.save(filename + ".pdf");
+});
+
+
 });
