@@ -528,7 +528,7 @@ generatePDF.addEventListener("click", () => {
         // Set Teks Catatan
         pdf.setTextColor("black");
         pdf.setFontSize(noteSize);
-        pdf.text(item.note, x + note_x, y + note_y, "center");
+        pdf.text(item.note, x + note_x, y + note_y, "right");
     });
 
     pdf.save(filename + ".pdf");
