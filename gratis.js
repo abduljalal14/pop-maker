@@ -523,7 +523,7 @@ lines.forEach((line) => {
                 // pdf.text(item.judul, x + judul_x, y + judul_y,'center');
 
                 pdf.setTextColor('white');
-                renderScaledTextWithMargin(pdf, item.judul, judul_x, judul_y, bg_w, judulSize,2);
+                renderScaledTextWithMargin(pdf, item.judul, x + judul_x, y + judul_y, bg_w, judulSize,2);
     
                 // Set Teks Merk
                 pdf.setTextColor('black');
